@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import {
     VStack,
     Box,
@@ -6,6 +6,8 @@ import {
     Heading,
     Button,
     Text,
+    HStack,
+    Icon,
 } from 'native-base'
 
 import { Error } from '../../common/components/error/styles'
@@ -13,9 +15,12 @@ import { Error } from '../../common/components/error/styles'
 import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
-import ControlledInput from '../../common/components/controlledInput';
+import { ControlledInput } from '../../common/components/controlledInput';
 import Page from '../../common/components/page/Page'
 import * as AuthService from '../../services/auth/authService'
+import { getItem, saveItem } from '../../common/utils/storage'
+import { Context } from '../../common/context/context'
+import { MaterialIcons } from '@expo/vector-icons'
 
 const schema = yup.object({
     email: yup.string().trim().email("E-mail inválido").required("Informe o seu email"),
@@ -29,26 +34,24 @@ const Login = ({ navigation }) => {
         resolver: yupResolver(schema),
     });
 
+    const { setIsAuth } = useContext(Context)
+
     const login = async (data) => {
         setActionError('')
         setLoading(true)
         const resp = await AuthService.login(data)
         setLoading(false)
 
-        if(!resp.success){
+        if (!resp.success) {
             setActionError(resp.message)
             return
         }
-        navigation.navigate('home')
+        saveItem('TOKEN', resp.data.data.token)
+        setIsAuth(true)
     }
 
     const handleFormSubmit = (data) => {
-        console.log(data)
         login(data)
-    }
-
-    const handleErrorSubmit = (data) => {
-        console.log(data)
     }
 
     return (
@@ -59,7 +62,18 @@ const Login = ({ navigation }) => {
                 width="full"
                 height="full"
             >
-                <Heading size="xl" textAlign={"center"}>Login</Heading>
+                <HStack padding={5} alignItems="center" justifyContent={"center"}>
+                    <Box>
+                        <Text
+                            fontSize={30}
+                            color="gray.500"
+                            fontWeight={"bold"}
+                        >
+                            Login
+                        </Text>
+                    </Box>
+                </HStack>
+                {/* <Heading size="xl" textAlign={"center"}>Login</Heading> */}
                 <VStack width="full" padding={5} space={2} justifyContent="center">
                     <FormControl isRequired>
                         <FormControl.Label>
@@ -93,15 +107,15 @@ const Login = ({ navigation }) => {
                         isLoading={loading}
                         marginTop={10}
                         height={50}
-                        colorScheme="green"
+                        colorScheme="blue"
                         fontWeight={'bold'}
-                        onPress={handleSubmit(handleFormSubmit, handleErrorSubmit)}
+                        onPress={handleSubmit(handleFormSubmit)}
                     >
                         Entrar
                     </Button>
                 </VStack>
             </Box>
-        </Page >
+        </Page>
     );
 }
 

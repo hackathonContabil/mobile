@@ -15,7 +15,7 @@ import {
 
 import { MaterialIcons } from '@expo/vector-icons'
 
-const Welcome = ({navigation}) => {
+const Welcome = ({ navigation }) => {
     const [show, setShow] = useState(false);
 
     return (
@@ -26,11 +26,31 @@ const Welcome = ({navigation}) => {
             textAlign="center"
             width="full"
         >
-            <Heading size="xl">Seja Bem Vindo!</Heading>
+            <VStack padding={5} alignItems="center" justifyContent={"center"}>
+                <Box>
+                    <Text
+                        fontSize={30}
+                        color="gray.500"
+                        fontWeight={"bold"}
+                    >
+                        Seja bem vindo(a) !
+                    </Text>
+                </Box>
+                <Box>
+                    <Text
+                        fontSize={20}
+                        color="gray.400"
+                        fontWeight={"bold"}
+                    >
+                        O que deseja fazer ?
+                    </Text>
+                </Box>
+            </VStack>
+            {/* <Heading size="xl">Seja Bem Vindo!</Heading> */}
             <VStack width="full" padding={5} space={5}>
                 <Button
                     height={50}
-                    colorScheme="green"
+                    colorScheme="blue"
                     fontWeight={'bold'}
                     // fontSize={900}
                     onPress={() => navigation.navigate('login')}
@@ -39,7 +59,7 @@ const Welcome = ({navigation}) => {
                 </Button>
                 <Button
                     height={50}
-                    colorScheme="green"
+                    colorScheme="blue"
                     fontWeight={'bold'}
                     // fontSize={900}
                     onPress={() => navigation.navigate('register')}

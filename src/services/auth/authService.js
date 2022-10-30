@@ -7,6 +7,10 @@ export const login = async (payload) => {
 };
 
 export const validateAuth = async () => {
-  const { data } = await get('/user/auth/validate')
-  return data.status === "success"
+  // return true
+  return await get('/user/auth/validate')
+}
+
+export const allowShareAccountData = async () => {
+  return await create('/user/client/share-bank-account-data')
 }

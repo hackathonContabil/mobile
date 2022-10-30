@@ -8,7 +8,7 @@ export const handleErrors = (error) => {
 
   // if (error?.response?.status === statusEnum.UNAUTHORIZED) {
   if (error?.response?.status === "") {
-    // localStorage.removeItem('TOKEN_KEY');
+    // localStorage.removeItem('TOKEN');
     // window.location.href = '/login';
     return;
   }

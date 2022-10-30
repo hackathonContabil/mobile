@@ -5,10 +5,21 @@ const Context = createContext(undefined);
 
 const ContextProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
+  const [isSharingBankAccountData, setIsSharingBankAccountData] = useState(false);
   const [user, setUser] = useState({ name: null, email: null, token: null })
+  const [isAuth, setIsAuth] = useState(false)
 
   return <Context.Provider
-    value={{ loading, setLoading, user, setUser }}
+    value={{
+      loading,
+      setLoading,
+      user,
+      setUser,
+      isAuth,
+      setIsAuth,
+      isSharingBankAccountData,
+      setIsSharingBankAccountData
+    }}
   >
     {children}
   </Context.Provider>;

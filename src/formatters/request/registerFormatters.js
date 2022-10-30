@@ -4,7 +4,7 @@ export const createFormatter = (data) => {
         email: data.email,
         phone: data.phone,
         password: data.password,
-        documen: data.document,
+        document: data.document,
         accountingOfficeId: data.accountingOfficeId
     }
 }

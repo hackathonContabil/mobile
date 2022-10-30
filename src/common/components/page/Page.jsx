@@ -7,14 +7,13 @@ const Page = ({ children }) => {
         marginTop={StatusBar.currentHeight}
         // padding={5}
         bgColor="gray.100"
-        height="100%"
+        // height={"full"}
     >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            {/* <KeyboardAvoidingView behavior="position" enabled> */}
-            <KeyboardAvoidingView enabled>
-                {children}
-            </KeyboardAvoidingView>
-        </TouchableWithoutFeedback>
+        {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
+        {/* <KeyboardAvoidingView enabled> */}
+        {children}
+        {/* </KeyboardAvoidingView> */}
+        {/* </TouchableWithoutFeedback> */}
     </Box >
 }
 

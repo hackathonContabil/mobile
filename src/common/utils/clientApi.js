@@ -3,8 +3,7 @@ import { getItem, saveItem } from '../../common/utils/storage'
 
 
 export const axiosDefault = () => {
-  // const token = getItem('TOKEN_KEY');
-  // console.log('token', token)
+  // const token = getItem('TOKEN');
   const configs = {
     baseURL: 'http://10.0.12.93:3000/api/v1',
     headers: {

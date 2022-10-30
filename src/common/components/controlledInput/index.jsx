@@ -1,6 +1,6 @@
 import React from 'react';
 import { Control, Controller, FieldError } from 'react-hook-form';
-import { Input } from 'native-base'
+import { Input, Select } from 'native-base'
 import { Error } from '../error/styles';
 
 const ControlledInput = ({ control, name, error, ...rest }) => {
@@ -25,4 +25,34 @@ const ControlledInput = ({ control, name, error, ...rest }) => {
   )
 }
 
-export default ControlledInput
+const ControlledSelectInput = ({ control, name, error, loading, data, ...rest }) => {
+  return (
+    <>
+      <Controller
+        name={name}
+        control={control}
+        render={({ field: { onChange, value } }) => (
+          <Select
+            dropdownIcon={
+              loading &&
+              <Spinner accessibilityLabel="Loading posts" marginRight={5} />
+            }
+            value={value}
+            onValueChange={onChange}
+            {...rest}
+          >
+            {data.map((e, index) => {
+              return <Select.Item key={index} label={e.name} value={e.id} />
+            })}
+          </Select>
+        )}
+      />
+
+      {
+        error && <Error>{error.message}</Error>
+      }
+    </>
+  )
+}
+
+export {ControlledInput, ControlledSelectInput}

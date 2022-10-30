@@ -3,5 +3,5 @@ import { createFormatter } from '../../formatters/request/registerFormatters'
 
 export const createUser = async (data) => {
     data = createFormatter(data)
-    return await create('/activities', data);
+    return await create('/user/client', data);
 };

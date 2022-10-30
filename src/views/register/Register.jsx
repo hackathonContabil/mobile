@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     NativeBaseProvider,
     VStack,
@@ -10,22 +10,26 @@ import {
     Icon,
     Button,
     Text,
-    Select
+    Select,
+    Spinner,
+    HStack
 } from 'native-base'
 
 import { MaterialIcons } from '@expo/vector-icons'
 import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
-import ControlledInput from '../../common/components/controlledInput';
+import { ControlledInput, ControlledSelectInput } from '../../common/components/controlledInput';
 import { Keyboard, KeyboardAvoidingView, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import Page from '../../common/components/page/Page'
 import * as RegisterService from '../../services/register/registerService'
+import * as AccountingOfficeService from '../../services/accountingOffice/accountingOfficeService'
+import { Error } from '../../common/components/error/styles'
 
 const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
 
 const schema = yup.object({
-    name: yup.string().min(4, "O nome deve conter no mínimo 4 caracteres").required("Informe a razão social"),
+    name: yup.string().min(8, "O nome deve conter no mínimo 8 caracteres").required("Informe a razão social"),
     email: yup.string().trim().email("E-mail inválido").required("Informe o seu email"),
     phone: yup.string().matches(phoneRegExp, 'Telefone inválido').required("Informe o seu telefone"),
     password: yup.string().min(8, "A senha deve ter ao menos 8 dígitos").required("Informe a senha"),
@@ -35,15 +39,28 @@ const schema = yup.object({
 });
 
 const Register = ({ navigation }) => {
+    const [accountOfficeLoading, setAccountOfficeLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [actionError, setActionError] = useState('')
+    const [accountOfficeData, setAccountOfficeData] = useState([])
     const [show, setShow] = useState(false);
     const [value, setValue] = useState('')
     const { control, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema),
-
     });
 
     const createUser = async (data) => {
-        await RegisterService.createUser(data)
+        setActionError('')
+        setLoading(true)
+        const response = await RegisterService.createUser(data)
+        setLoading(false)
+
+        if (!response.success) {
+            setActionError(response.message)
+            return
+        }
+
+        navigation.navigate('login')
     }
 
     const handleFormSubmit = (data) => {
@@ -51,20 +68,49 @@ const Register = ({ navigation }) => {
     }
 
     const handleErrorSubmit = (data) => {
+        // createUser(data)
     }
+
+    const getAccountingOffices = async () => {
+        const data = await AccountingOfficeService.getAccountOffices()
+        if (!data.success) {
+            return
+        }
+
+        setAccountOfficeData(data.data.data)
+    }
+
+    useEffect(() => {
+        getAccountingOffices()
+    }, [])
 
     return (
         <Page>
             <Box
-                // alignItems="center"
-                // justifyContent="center"
                 textAlign="center"
                 width="full"
                 height="full"
             >
-                <Heading size="xl" textAlign={"center"}>Cadastro</Heading>
+                <HStack padding={5} alignItems="center">
+                    <Box marginRight={2}>
+                        <Icon
+                            as={<MaterialIcons name="app-registration" />}
+                            size="xl"
+                        />
+                    </Box>
+                    <Box>
+                        <Text
+                            fontSize={20}
+                            color="gray.500"
+                            fontWeight={"bold"}
+                        >
+                            Cadastro de usuário
+                        </Text>
+                    </Box>
+                </HStack>
+                {/* <Heading size="xl" textAlign={"center"}>Cadastro</Heading> */}
                 <ScrollView>
-                    <VStack width="full" padding={5} space={2}>
+                    <VStack width="full" height={"full"} padding={5} space={2}>
                         <FormControl isRequired>
                             <FormControl.Label>
                                 <Text fontSize={'md'}>Razão social</Text>
@@ -83,6 +129,7 @@ const Register = ({ navigation }) => {
                                 <Text fontSize={'md'}>CNPJ</Text>
                             </FormControl.Label>
                             <ControlledInput
+                                maxLength={14}
                                 control={control}
                                 name="document"
                                 placeholder="Digite o CNPJ"
@@ -110,6 +157,7 @@ const Register = ({ navigation }) => {
                                 <Text fontSize={'md'}>Telefone</Text>
                             </FormControl.Label>
                             <ControlledInput
+                                maxLength={11}
                                 control={control}
                                 name="phone"
                                 placeholder="Digite seu telefone"
@@ -150,18 +198,37 @@ const Register = ({ navigation }) => {
                             <FormControl.Label>
                                 <Text fontSize={'md'}>Escritório</Text>
                             </FormControl.Label>
-                            <Select placeholder="Choose Service">
-                                <Select.Item label="UX Research" value="ux" />
-                                <Select.Item label="UX Research 2" value="ux2" />
-                                <Select.Item label="UX Research 3" value="ux3" />
-                                <Select.Item label="UX Research 4" value="ux4" />
-                            </Select>
+                            <ControlledSelectInput
+                                name="accountingOfficeId"
+                                control={control}
+                                placeholder="Choose Service"
+                                dropdownIcon={
+                                    accountOfficeLoading &&
+                                    <Spinner accessibilityLabel="Loading posts" marginRight={5} />
+                                }
+                                data={accountOfficeData}
+                                error={errors.accountingOfficeId}
+                            />
+                            {/* <Select
+                                control={control}
+                                placeholder="Choose Service"
+                                dropdownIcon={
+                                    accountOfficeLoading &&
+                                    <Spinner accessibilityLabel="Loading posts" marginRight={5} />
+                                }
+                            >
+                                {accountOfficeData.map((e, index) => {
+                                    return <Select.Item key={index} label={e.name} value={e.id} />
+                                })}
+                            </Select> */}
                         </FormControl>
+
+                        <Error>{actionError}</Error>
                         <Button
-                            isLoading={true}
-                            marginTop={10}
+                            isLoading={loading}
+                            marginTop={0}
                             height={50}
-                            colorScheme="green"
+                            colorScheme="blue"
                             fontWeight={'bold'}
                             onPress={handleSubmit(handleFormSubmit, handleErrorSubmit)}
                         >

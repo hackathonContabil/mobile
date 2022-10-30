@@ -1,33 +1,71 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import {
-    NativeBaseProvider,
     VStack,
     Box,
     FormControl,
-    Input,
     Heading,
-    Icon,
     Button,
-    HStack,
-    Avatar,
-    Text
+    Text,
 } from 'native-base'
 
+import { Error } from '../../common/components/error/styles'
+
+import * as yup from "yup";
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
+import {ControlledInput} from '../../common/components/controlledInput';
 import Page from '../../common/components/page/Page'
+import * as AuthService from '../../services/auth/authService'
+import { getItem, saveItem } from '../../common/utils/storage'
+import {Context} from '../../common/context/context'
 
-import { MaterialIcons } from '@expo/vector-icons'
+const schema = yup.object({
+    email: yup.string().trim().email("E-mail inválido").required("Informe o seu email"),
+    password: yup.string().required("Informe a senha"),
+});
 
-export default function Home() {
-    const [show, setShow] = useState(false);
+const Home = ({ navigation }) => {
+    const [loading, setLoading] = useState(false)
+    const [actionError, setActionError] = useState('')
+    const { control, handleSubmit, formState: { errors } } = useForm({
+        resolver: yupResolver(schema),
+    });
+
+    const {setIsAuth} = useContext(Context)
+
+    const login = async (data) => {
+        setActionError('')
+        setLoading(true)
+        const resp = await AuthService.login(data)
+        setLoading(false)
+
+        if (!resp.success) {
+            setActionError(resp.message)
+            return
+        }
+        saveItem('TOKEN', resp.data.data.token)
+        setIsAuth(true)
+    }
+
+    const handleFormSubmit = (data) => {
+        login(data)
+    }
+
+    const handleErrorSubmit = (data) => {
+    }
 
     return (
         <Page>
             <Box
-                height="full"
+                justifyContent="center"
+                textAlign="center"
                 width="full"
+                height="full"
             >
-                <Text>home</Text>
+                <Heading size="xl" textAlign={"center"}>Home</Heading>
             </Box>
-        </Page>
+        </Page >
     );
 }
+
+export default Home
